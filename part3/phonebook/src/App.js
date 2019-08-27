@@ -43,40 +43,46 @@ const App = () => {
     );
 
     if (existingPerson) {
-      createNotification(`${newName} is already in the phonebook`, 'error');
-      // const updatePerson = window.confirm(
-      //   `${newName} is already added to the phonebook, replace the old number with a new one?`,
-      // );
+      // createNotification(`${newName} is already in the phonebook`, 'error');
+      const updatePerson = window.confirm(
+        `${newName} is already added to the phonebook, replace the old number with a new one?`,
+      );
 
-      // if (updatePerson) {
-      //   const personObject = {
-      //     ...existingPerson,
-      //     number: newNumber,
-      //   };
+      if (updatePerson) {
+        const personObject = {
+          ...existingPerson,
+          number: newNumber,
+        };
 
-      //   phoneBook
-      //     .updatePerson(existingPerson.id, personObject)
-      //     .then((updatedPerson) => {
-      //       createNotification(
-      //         `Number of ${existingPerson.name} changed`,
-      //         'success',
-      //       );
-      //       setPersons(
-      //         persons.map((person) =>
-      //           person.id !== updatedPerson.id ? person : updatedPerson,
-      //         ),
-      //       );
-      //     });
-      // }
+        phoneBook
+          .updatePerson(existingPerson.id, personObject)
+          .then((updatedPerson) => {
+            createNotification(
+              `Number of ${existingPerson.name} changed`,
+              'success',
+            );
+            setPersons(
+              persons.map((person) =>
+                person.id !== updatedPerson.id ? person : updatedPerson,
+              ),
+            );
+          });
+      }
     } else {
       const personObject = {
         name: newName,
         number: newNumber,
       };
-      phoneBook.createPerson(personObject).then((newPerson) => {
-        createNotification(`Added ${newName}`, 'success');
-        setPersons(persons.concat(newPerson));
-      });
+      phoneBook
+        .createPerson(personObject)
+        .then((newPerson) => {
+          createNotification(`Added ${newName}`, 'success');
+          setPersons(persons.concat(newPerson));
+        })
+        .catch((error) => {
+          console.log(error);
+          createNotification(error.response.data.error, 'error');
+        });
     }
 
     reset();
