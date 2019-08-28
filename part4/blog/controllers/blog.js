@@ -1,4 +1,5 @@
 const blogRouter = require('express').Router();
+const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Blog = require('../models/Blog');
 
@@ -33,21 +34,30 @@ blogRouter.get('/:id', async (request, response, next) => {
 });
 
 blogRouter.post('/', async (request, response, next) => {
-  const anyUser = await User.findOne({});
-  console.log(anyUser);
-
-  const blog = new Blog({
-    title: request.body.title,
-    author: request.body.author,
-    url: request.body.url,
-    user: anyUser._id,
-  });
+  const token = request.token;
 
   try {
+    if (!token) {
+      return response.status(401).json({ error: 'token missing or invalid' });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+
+    if (!decodedToken.id) {
+      return response.status(401).json({ error: 'token missing or invalid' });
+    }
+
+    const user = await User.findById(decodedToken.id);
+    const blog = new Blog({
+      title: request.body.title,
+      author: request.body.author,
+      url: request.body.url,
+      user: user._id,
+    });
     const result = await blog.save();
 
-    anyUser.blogs = anyUser.blogs.concat(result._id);
-    await anyUser.save();
+    user.blogs = user.blogs.concat(result._id);
+    await user.save();
     const returnedBlog = await result
       .populate('user', {
         username: 1,
@@ -82,9 +92,27 @@ blogRouter.put('/:id', async (request, response, next) => {
 });
 
 blogRouter.delete('/:id', async (req, res, next) => {
+  const token = req.token;
   try {
-    const result = await Blog.findByIdAndDelete(req.params.id);
-    res.status(204).end();
+    if (!token) {
+      return res.status(401).json({ error: 'token missing or invalid' });
+    }
+
+    const decodedToken = jwt.verify(token, process.env.SECRET);
+
+    if (!decodedToken.id) {
+      return res.status(401).json({ error: 'token missing or invalid' });
+    }
+
+    const user = await User.findById(decodedToken.id);
+    const blog = await Blog.findById(req.params.id);
+
+    if (blog.user.toString() === user._id.toString()) {
+      const result = await Blog.findByIdAndDelete(req.params.id);
+      res.status(204).end();
+    } else {
+      res.status(401).json({ error: 'user is not the owner of blog post' });
+    }
   } catch (error) {
     next(error);
   }
