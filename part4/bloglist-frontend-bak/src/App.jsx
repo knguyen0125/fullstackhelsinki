@@ -6,13 +6,10 @@ import LoginService from './services/login';
 import BlogService from './services/blogs';
 import Notification from './components/Notification';
 import Toggleable from './components/Toggleable';
-import { useField } from './hooks';
 
 function App() {
-  // const [username, setUsername] = useState('');
-  // const [password, setPassword] = useState('');
-  const username = useField('text');
-  const password = useField('password');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [blogs, setBlogs] = useState([]);
 
@@ -22,13 +19,13 @@ function App() {
 
   const [notification, setNotification] = useState(null);
 
-  // const handlePassword = (e) => {
-  //   setPassword(e.target.value);
-  // };
+  const handlePassword = (e) => {
+    setPassword(e.target.value);
+  };
 
-  // const handleUsername = (e) => {
-  //   setUsername(e.target.value);
-  // };
+  const handleUsername = (e) => {
+    setUsername(e.target.value);
+  };
   const handleTitle = (e) => {
     setTitle(e.target.value);
   };
@@ -66,8 +63,8 @@ function App() {
 
     try {
       const data = await LoginService.login({
-        username: username.value,
-        password: password.value,
+        username,
+        password,
       });
 
       window.localStorage.setItem('loggedUser', JSON.stringify(data));
@@ -76,8 +73,8 @@ function App() {
     } catch (e) {
       createNotification('wrong username or password', 'error');
     } finally {
-      username.clear();
-      password.clear();
+      setUsername('');
+      setPassword('');
     }
   };
 
@@ -119,8 +116,8 @@ function App() {
     <Login
       username={username}
       password={password}
-      // handleUsername={handleUsername}
-      // handlePassword={handlePassword}
+      handleUsername={handleUsername}
+      handlePassword={handlePassword}
       handleLogin={handleLogin}
     />
   );
@@ -178,7 +175,7 @@ function App() {
           handleBlogCreation={handleBlogCreation}
         />
       </Toggleable>
-      <div className="blogs">
+      <div>
         {blogs.map((blog) => (
           <Blog
             key={blog.id}

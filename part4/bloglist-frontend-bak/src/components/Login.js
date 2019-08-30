@@ -4,8 +4,8 @@ import PropTypes from 'prop-types';
 const Login = ({
   username,
   password,
-  // handleUsername,
-  // handlePassword,
+  handleUsername,
+  handlePassword,
   handleLogin,
 }) => {
   const handleLogout = async (e) => {
@@ -21,25 +21,19 @@ const Login = ({
       <h1>login to application</h1>
       <form onSubmit={handleLogin}>
         <p>username: </p>
-        <input
-          type={username.type}
-          value={username.value}
-          onChange={username.onChange}
-        />
+        <input type="text" value={username} onChange={handleUsername} />
         <p>password: </p>
-        <input
-          type={password.type}
-          value={password.value}
-          onChange={password.onChange}
-        />
+        <input type="password" value={password} onChange={handlePassword} />
         <button type="submit">login</button>
       </form>
     </div>
   );
 };
 Login.propTypes = {
-  username: PropTypes.object.isRequired,
-  password: PropTypes.object.isRequired,
+  username: PropTypes.string.isRequired,
+  password: PropTypes.string.isRequired,
+  handleUsername: PropTypes.func.isRequired,
+  handlePassword: PropTypes.func.isRequired,
   handleLogin: PropTypes.func.isRequired,
 };
 export default Login;
