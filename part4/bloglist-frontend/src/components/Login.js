@@ -16,22 +16,22 @@ const Login = ({
     console.log(window.localStorage);
   };
 
+  const { clear: clearUserName, ...usernameOther } = username;
+  const { clear: clearPassword, ...passwordOther } = password;
+
   return (
     <div>
       <h1>login to application</h1>
       <form onSubmit={handleLogin}>
         <p>username: </p>
-        <input
-          type={username.type}
-          value={username.value}
-          onChange={username.onChange}
-        />
+        <input {...usernameOther} />
         <p>password: </p>
-        <input
+        <input {...passwordOther} />
+        {/* <input
           type={password.type}
           value={password.value}
           onChange={password.onChange}
-        />
+        /> */}
         <button type="submit">login</button>
       </form>
     </div>
